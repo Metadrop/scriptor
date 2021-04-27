@@ -219,7 +219,7 @@ then
 
   # Do we need to download a remote dump?
   # Best if we do this before droping current database.
-  if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f $LOCAL_FILE ]
+  if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f "${LOCAL_FILE}.gz" ]
   then
     echo "Either no local dump was found or refresh local dump options was passed."
     # Ensure using your personal ssh-key before trying to connect to remote alias for downloading the database.
@@ -233,8 +233,8 @@ then
       exit 1
     fi
   else
-    echo "Loading database from local file:  ${LOCAL_FILE}"
-    cat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
+    echo "Loading database from local file: "${LOCAL_FILE}.gz""
+    zcat "${LOCAL_FILE}.gz" | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
   fi
 
 fi
@@ -258,10 +258,10 @@ then
 
 fi
 
-if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f $LOCAL_FILE ]
+if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f "${LOCAL_FILE}.gz" ]
   then
     echo "Updating local dump."
-    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --result-file=../$LOCAL_FILE
+    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --gzip --result-file=../$LOCAL_FILE
 fi
 
 cat << EOF
